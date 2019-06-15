@@ -10,7 +10,17 @@ import configparser
 from pydriller import *
 import logging
 
+def SetupLogger(filename):
+    """set up logger""" 
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)s-%(name)s-%(message)s')
+    file_handler=logging.FileHandler(filename)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
+
+SetupLogger('git-scrapper.log')
 
 def ParseCommitMsg(message):
     """
@@ -23,16 +33,7 @@ def ParseCommitMsg(message):
         Compiletime : 10.30
     """
     logger = logging.getLogger(__name__)
-    return dict(x.split(':') for x in message.split('\n') 
-
-def SetupLogger(filename):
-    """set up logger""" 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(levelname)s-%(name)s-%(message)s')
-    file_handler=logging.FileHandler(filename)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    return {x.split(':')[0].strip().upper():x.split(':')[1].strip() for x in message.split('\n') if x.find(':') != -1}
 
 
 def main():
@@ -45,7 +46,7 @@ def main():
     ToTag=parser['GIT-SCRAPPER']['ToTag']
     Outputfilename=parser['GIT-SCRAPPER']['OutputFile']
    
-    SetupLogger('git-scrapper.log')
+    
     logger = logging.getLogger(__name__)
     logger.info('Using Repo : {}'.format(repo))
     logger.info('From Tag   : {}'.format(fromTag))
@@ -56,8 +57,5 @@ def main():
         print('hash : {}, committer : {}'.format(c.hash,c.committer.name))
         ParseCommitMsg(c.msg)
         
-  
-     
-
 if __name__ == '__main__':
     main() 
