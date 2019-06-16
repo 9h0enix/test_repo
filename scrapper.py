@@ -1,17 +1,12 @@
-#
-# a configuration file of type ini # a git config parser
-# pydriller
-# input to the script would be given by config
-# logger
-# output Release-Details.txt
-#
-
 import configparser
 from pydriller import *
 import logging
 
+
 def SetupLogger(filename):
-    """set up logger""" 
+    """
+        set up logger
+    """ 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(levelname)s-%(name)s-%(message)s')
@@ -19,10 +14,9 @@ def SetupLogger(filename):
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-
 SetupLogger('git-scrapper.log')
 
-def ParseCommitMsg(message):
+def parseCommitMsg(message):
     """
         Message Format
 
@@ -36,16 +30,26 @@ def ParseCommitMsg(message):
     return {x.split(':')[0].strip().upper():x.split(':')[1].strip() for x in message.split('\n') if x.find(':') != -1}
 
 
+def parseDiff(diff):
+    pass
+
+
+
 def main():
     
     parser = configparser.ConfigParser()
     parser.read('git-scrapper.ini')
     
-    repo=parser['GIT-SCRAPPER']['repo']
-    fromTag=parser['GIT-SCRAPPER']['fromTag']
-    ToTag=parser['GIT-SCRAPPER']['ToTag']
+    repo=parser['GIT-SCRAPPER']['repo'].strip()
+    fromTag=parser['GIT-SCRAPPER']['fromTag'].strip()
+    ToTag=parser['GIT-SCRAPPER']['ToTag'].strip()
     Outputfilename=parser['GIT-SCRAPPER']['OutputFile']
    
+    if fromTag == '':
+        fromTag = None
+    if ToTag == '':
+        ToTag = None
+    
     
     logger = logging.getLogger(__name__)
     logger.info('Using Repo : {}'.format(repo))
@@ -55,7 +59,7 @@ def main():
     
     for c in RepositoryMining(repo,from_tag=fromTag,to_tag=ToTag,only_in_branch='master',only_no_merge=True,).traverse_commits():
         print('hash : {}, committer : {}'.format(c.hash,c.committer.name))
-        ParseCommitMsg(c.msg)
+        parseCommitMsg(c.msg)
         
 if __name__ == '__main__':
     main() 
