@@ -37,6 +37,15 @@
 
 import git 
 from unidiff import PatchSet
+
+#comments on unidiff library
+#Objects : Discription
+#Line    : single diff line
+#Hunk    : Each of the modified blocks of a file. @@ %d,%d %d,%d @@
+#PatchedFile : Patch updated file, it is a list of Hunks.
+#PatchSet: List of Patchedfile
+
+
 import os
 
 #from cStringIO import StringIO (this only works for python 2.x)
@@ -56,16 +65,20 @@ def parseDiff(diff_index):
       # Get detailed info
       patchset = PatchSet(a_path + os.linesep + b_path + os.linesep + d.diff.decode('utf-8'))
 
-      for h in patchset[0]:
-        for l in h:
-          if l.is_added:
-              print('ADDED : {} src line no. {} target line no.{} diff line no. {} '.format(l.value, l.source_line_no, l.target_line_no,l.diff_line_no))
-          elif l.is_removed:
-              print('REMOVED : {} src line no. {} target line no.{} diff line no. {}'.format(l.value, l.source_line_no, l.target_line_no,l.diff_line_no))
+      for hunk in patchset[0]:
+        lAdded = [x for x in hunk.target_lines() if x.is_added and x.value[0] != '#' and x.value != '\n']
+        lRemoved = [x for x in hunk.source_lines() if x.is_removed and x.value[0] != '#' and x.value != '\n']
+        fx = lambda l : [x.value for x in l]
+        print('ADDED')
+        print(fx(lAdded))
+        print('REMOVED')
+        print(fx(lRemoved))
+        
+  
 
 
 
-commit_sha1 = '58b09d4f05ed5542342c6a6e7c80e73cfacc1589'
+commit_sha1 = 'b431f7312a22cd0f5a0c280da2ab2fc216054eb2'
 repo_directory_address = "/home/tarun/testrepo/test_repo"
 
 repository = git.Repo(repo_directory_address)
