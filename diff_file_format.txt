@@ -1,0 +1,10 @@
++ means in the new version
+- means in the old version
+
+
+one possible solution:
+create a reverse patch from original file and diff
+apply the reverse patch to original file and get the new file 
+compare the 2 files in the python
+and then list out the differences between the 2 things
+

@@ -73,12 +73,48 @@ def parseDiff(diff_index):
         print(fx(lAdded))
         print('REMOVED')
         print(fx(lRemoved))
+
+        filtersections = lambda l : [x for x in l if x.value.strip()[0] == '[' and x.value.strip()[-1] == ']']
+        #As of now I don't know how to support changed section names
+        print('ADDED Sections')
+        lAddedSections = fx(filtersections(lAdded))
+        print(lAddedSections)
+        print('REMOVED Sections')
+        lRemovedSections = fx(filtersections(lRemoved))
+        print(lRemovedSections)
+
+        #list of added Property:value pairs
+        lAddedPairs = [x for x in lAdded if x.value.find('=') != -1]
+        print('ADDED Pairs')
+        print(lAddedPairs)
+        lRemovedPairs = [x for x in lRemoved if x.value.find('=') != -1]
+        print('REMOVED Pairs')
+        print(lRemovedPairs)
+
+        #find Common Property in Both added and removed pairs
+        lChanged = []
+        for added in lAddedPairs:
+          addedproperty = added.value.split('=')[0]
+          for removed in lRemovedPairs:
+            removedproperty = removed.value.split('=')[0]
+            if addedproperty == removedproperty:
+              lChanged.append(removed)
+              lChanged.append(added)
+              lChanged.append((removed,added))
+              break
+        print('Changed Values')
+        print(lChanged)
+
+        print('TRULY ADDED')
+        lTrulyAdded = [x for x in lAddedPairs if x not in lChanged]
+        print(lTrulyAdded)
+
+        print('TRULY REMOVED')
+        lTrulyRemoved = [x for x in lRemovedPairs if x not in lChanged]
+        print(lTrulyRemoved)
         
-  
 
-
-
-commit_sha1 = 'b431f7312a22cd0f5a0c280da2ab2fc216054eb2'
+commit_sha1 = '9c25cb838817d4dc395fe27dae235b32fac9a8ce'
 repo_directory_address = "/home/tarun/testrepo/test_repo"
 
 repository = git.Repo(repo_directory_address)
@@ -88,4 +124,5 @@ prev_commit = repository.commit(prev_commit_sha1)
 
 diffs = []
 diff_index = commit.diff(prev_commit, create_patch=True)
-parseDiff(diff_index)
+print(str(diff_index))
+#parseDiff(diff_index)
